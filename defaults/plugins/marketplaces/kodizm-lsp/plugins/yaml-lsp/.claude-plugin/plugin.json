@@ -1,0 +1,20 @@
+{
+  "name": "yaml-lsp",
+  "description": "YAML language server",
+  "author": {
+    "name": "Kodizm",
+    "url": "https://kodizm.io"
+  },
+  "lspServers": {
+    "yaml": {
+      "command": "yaml-language-server",
+      "args": [
+        "--stdio"
+      ],
+      "extensionToLanguage": {
+        ".yaml": "yaml",
+        ".yml": "yaml"
+      }
+    }
+  }
+}

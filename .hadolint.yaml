@@ -1,0 +1,11 @@
+ignored:
+  # We intentionally use || true for graceful extension install fallback
+  - DL3059  # Multiple consecutive RUN instructions (our stages are intentional)
+  - SC2086  # Double quote to prevent globbing — we want word splitting in extension loops
+  - SC1091  # Not following sourced file — profile files exist at runtime
+  - DL3013  # Pin pip versions — we want latest tools at build time
+
+trustedRegistries:
+  - docker.io
+
+failure-threshold: warning

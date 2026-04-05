@@ -1,0 +1,19 @@
+{
+  "name": "ruby-lsp",
+  "description": "Ruby language server",
+  "author": {
+    "name": "Kodizm",
+    "url": "https://kodizm.io"
+  },
+  "lspServers": {
+    "ruby": {
+      "command": "ruby-lsp",
+      "args": [],
+      "extensionToLanguage": {
+        ".rb": "ruby",
+        ".rake": "ruby",
+        ".gemspec": "ruby"
+      }
+    }
+  }
+}
