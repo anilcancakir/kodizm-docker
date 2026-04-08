@@ -45,5 +45,34 @@
   "verbose": false,
   "remoteControlAtStartup": false,
   "defaultMode": "acceptEdits",
-  "model": "opus"
+  "model": "opus",
+  "permissions": {
+    "deny": [
+      "WebSearch",
+      "WebFetch",
+      "Agent(Plan)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "WebSearch|WebFetch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Web tools blocked — use kodizm MCP tools (web-search, web-fetch) via librarian agent.' >&2; exit 2"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent(Plan)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Agent(Plan) blocked — Kodizm manages planning via task lifecycle.' >&2; exit 2"
+          }
+        ]
+      }
+    ]
+  }
 }
