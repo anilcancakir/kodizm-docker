@@ -1,6 +1,6 @@
 # Writing Style - Reference Examples
 
-Excerpts from Anilcan's published writing demonstrating voice patterns.
+Excerpts from Kodizm's published writing demonstrating voice patterns.
 
 ## Opening Examples
 

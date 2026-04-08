@@ -4,7 +4,7 @@ description: Coding style enforcement for ALL code — PHP, Dart, TypeScript, Go
 when-to-use: Any request to write, modify, review, or generate code in any language. Triggers on implementation, refactoring, code review, and TDD tasks.
 ---
 
-# Anilcan Coding Style
+# Kodizm Coding Style
 
 Code is artisanship. Every class, method, and docblock is intentional. If it doesn't look clean enough to frame on a wall, it's not done.
 

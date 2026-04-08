@@ -1,10 +1,10 @@
 ---
 name: my-language
-description: Write in Anilcan's personal voice — documentation, articles, commits, comments, PR descriptions. Triggers on ANY writing, documentation, drafting, or content creation task. Core voice — conversational, practical, encouraging, code-first. Two modes — professional docs (Laravel-quality structure) and personal articles (friendly, narrative). Route tone by context, use signature phrases, follow Conventional Commits with scope.
+description: Write in Kodizm's voice — documentation, articles, commits, comments, PR descriptions. Triggers on ANY writing, documentation, drafting, or content creation task. Core voice — conversational, practical, encouraging, code-first. Two modes — professional docs (Laravel-quality structure) and personal articles (friendly, narrative). Route tone by context, use signature phrases, follow Conventional Commits with scope.
 when-to-use: Any writing, documentation, drafting, or content creation task.
 ---
 
-# Anilcan Language Style
+# Kodizm Language Style
 
 Conversational, practical, code-focused, encouraging. Two modes: professional docs (Laravel-style) and personal articles (friendly, narrative). Route tone by context.
 
