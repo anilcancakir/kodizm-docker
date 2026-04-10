@@ -1,12 +1,12 @@
 ---
 name: dev-planning
-description: Development planning workflow — codebase investigation, complexity estimation, structured plan generation, and plan review. Produces Wave/Step plans consumed by dev-execute. Applies to any task requiring a structured implementation plan before coding begins.
-when-to-use: Any task that needs an implementation plan before coding. Triggered when asked to plan a feature, analyze a task, or produce a development plan for a Lead Developer role.
+description: Development planning — codebase investigation, complexity estimation, structured Wave/Step plan generation and review. Produces plans consumed by dev-execute.
+when-to-use: Any task that needs an implementation plan before coding. Triggered when asked to plan a feature, analyze a task, or produce a development plan.
 ---
 
 # Development Planning
 
-You investigate the codebase, estimate complexity, and produce a structured plan. You do not write code — you produce plans that the execution phase follows exactly.
+Investigate the codebase, estimate complexity, and produce a structured Wave/Step plan. No code — only plans that the execution phase follows exactly.
 
 ## Phase 1: Load Context
 
@@ -37,7 +37,14 @@ After investigation, assess codebase state: **Disciplined** (follow patterns) / 
 
 **Simple:** Skip — proceed to Phase 4.
 
-**Normal:**
+**Normal:** Skip-if-confident gate. Skip if ALL of:
+1. scope is single module
+2. no external dependencies introduced
+3. no architectural impact
+4. research found all relevant patterns and files
+5. no cross-cutting concerns (auth, logging, error handling, migrations)
+
+If ANY condition fails:
 1. Self-analyze: context sufficiency, hidden requirements, gaps in the task description
 2. Identify MUST DO / MUST NOT directives for your plan
 3. If ambiguity remains: resolve via further investigation or `ask-user` MCP tool
@@ -58,13 +65,13 @@ Apply `my-coding` skill — plans must align with project coding standards. Appl
 
 ### Tier System
 
-| Tier | Files | When | Verbosity |
-|------|-------|------|-----------|
-| `quick` | 1 | Mechanical: config, rename, scaffold, boilerplate | Verbose — exact commands, before/after state |
-| `mid` | 1-3 | Standard implementation, business logic. **DEFAULT** | Standard — description + acceptance criteria |
-| `senior` | 3+ | Cross-layer, architecture, migration, complex edge cases | Lean — high-level + constraints |
+| Tier | Files | Model | When | Benchmark Context |
+|------|-------|-------|------|-------------------|
+| `quick` | ≤1 | haiku | Mechanical: config, rename, scaffold, boilerplate | SWE-bench 73%, 200K context, $5/MTok. Fast (93 tok/s). Fails at cross-file reasoning. |
+| `mid` | 1-3 | sonnet | Standard implementation, business logic. **DEFAULT** | SWE-bench 80%, 200K context, $15/MTok. 98.5% of Opus coding at 1/5 cost. |
+| `senior` | 3+ | opus | Cross-layer, architecture, migration, complex edge cases | SWE-bench 81%, 200K context, GPQA 91% (+17pp over Sonnet). $75/MTok. Justified for deep reasoning. |
 
-**Codebase state escalation:** Chaotic or Legacy — escalate all `quick` to `mid`. Transitional or Disciplined — no change.
+**Codebase state escalation**: Chaotic or Legacy → all `quick` steps escalate to `mid`.
 
 ### Wave Construction Rules
 
@@ -79,7 +86,13 @@ Apply `my-coding` skill — plans must align with project coding standards. Appl
 
 **Simple:** Skip — save plan directly.
 
-**Normal:**
+**Normal:** Skip-if-confident gate. Skip if ALL of:
+1. All file references verified (paths exist or are explicitly marked as new)
+2. Every step has concrete QA (command + expected result, not vague)
+3. Tiers match scope (no senior for single-file config, no quick for cross-module logic)
+4. No scope beyond original request (no bonus features, no extra abstractions)
+
+If ANY condition fails:
 1. Spawn `plan-review` agent with the plan content
 2. If REJECT: fix cited issues, re-submit (max 2 iterations)
 3. If OKAY: proceed to Phase 6
@@ -94,8 +107,7 @@ Apply `my-coding` skill — plans must align with project coding standards. Appl
 ## Phase 6: Deliver
 
 1. `create-task-section(type: plan)` — save the structured plan (format below)
-2. DO NOT call `update-task` to change status — the pipeline advances automatically
-3. `report-progress(status: planned, percentage: 100)`
+2. `report-progress(status: planned, percentage: 100)`
 
 ---
 

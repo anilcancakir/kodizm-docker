@@ -1,12 +1,12 @@
 ---
 name: dev-execute
-description: Plan execution engine. Parses plan sections, dispatches wave-based parallel plan-worker subagents with tier-aware model overrides (quick=haiku, mid=sonnet, senior=opus), verifies per-step done-when criteria, escalates failed tiers, accumulates cross-wave wisdom, runs post-wave tests, gates final verification by complexity, and delivers a structured dev_report section.
+description: Plan execution engine. Dispatches wave-based parallel plan-worker subagents with tier-aware model routing, verifies done-when criteria, escalates failed tiers, runs post-wave tests, delivers dev_report.
 when-to-use: When a task has an approved plan section ready for implementation. Triggers after dev-planning completes. Do NOT use for planning, analysis, or review.
 ---
 
 # Dev Execute
 
-You are the execution engine. You take an approved plan and turn it into working code through orchestrated plan-worker subagents, wave-based parallelism, tier-optimized model routing, and layered verification.
+Take an approved plan and turn it into working code through orchestrated plan-worker subagents, wave-based parallelism, and layered verification.
 
 ## Phase 1: Load Plan
 
@@ -112,121 +112,130 @@ Run the project's test suite for affected files after each wave:
 
 Repeat 2a-2g for each wave.
 
-## Plan-Worker Briefing Templates
+## Plan-Worker Briefing
 
-### Quick Tier (haiku)
+Consistent briefing format — ONE template for all tiers. Tier determines model routing only, not prompt verbosity. Model capability handles complexity.
 
-Exhaustively explicit. Compensate for lower reasoning with complete context. Leave zero ambiguity.
-
-```
-## Your Task
-**Assignment**: [Step N: title]
-
-[Full step description with exact file paths, exact changes, before/after state.
-Spell out every detail. Do not assume the worker can infer anything.]
-
-**Files**: [absolute paths to every file]
-**Done when**:
-  [acceptance criteria, verbatim from plan]
-**Conventions**: [project + plan conventions]
-
-[If accumulated wisdom exists:]
-**Wisdom from prior steps**: [wisdom items]
-
-After changes: run tests/linters for affected files.
-Summarize: files changed, verification results, issues found.
-```
-
-### Mid Tier (sonnet)
-
-Structured briefing. Worker infers implementation details from description and criteria.
+### Code Steps
 
 ```
 ## Task
-**Overall Goal**: [Plan title]
-**Your Assignment**: [Step N: title]
 
+**Overall Goal**: [Plan title — 1-2 sentences]
+**Your Assignment**: [Step title]
 [Full step description]
 
 ## Expected Outcome
+
 **Files to Modify**: [paths]
-**Acceptance Criteria**:
-  [done-when criteria, verbatim from plan]
+**Acceptance Criteria**: [done-when, verbatim]
 **QA**: [test scenarios from plan]
 
 ## Must Do
-- Follow project conventions from CLAUDE.md + plan conventions
-- Read existing files before modifying
-- Implement ONLY your assigned step
-- Run verification after changes
+
+- Follow CLAUDE.md conventions (already in your context) + plan conventions below
+- [PLAN_CONVENTIONS — plan-specific only, not generic coding rules already in CLAUDE.md]
+- Read existing files before modifying — understand context
+- Implement ONLY your assigned step + run verification after changes
+- If tests fail, fix root cause — do not skip or modify tests to pass
 
 ## Must NOT Do
-- Modify files outside your step's scope
-- Add bonus refactors or scope creep
+
+Stay in scope — no out-of-scope files, no bonus refactors, no annotations on unchanged code.
+
+[If build/test/lint commands available:]
+## Build/Test Commands
+[build/test/lint commands from plan or project config]
 
 [If accumulated wisdom exists:]
-**Wisdom from prior steps**: [wisdom items]
+## Wisdom from prior steps
+Prefer these over re-discovering:
+[accumulated wisdom items]
+
+## Constraints
+
+- Scope: ONLY the files and changes described above
+- No new dependencies unless the step explicitly requires them
+- No modifications to files outside your assignment
+
+## Output Format
+
+### Changes Made
+- `file:line` — [what changed]
+
+### Verification
+- Build: [command] → [PASS/FAIL]
+- Tests: [command] → [N pass, N fail]
+- Lint: [command] → [PASS/FAIL]
+
+### Issues (if any)
+- [description]
 ```
 
-### Senior Tier (opus)
+### Infrastructure Steps (Type: infra)
 
-Lean briefing. Trust the model to explore deeply and make sound architectural decisions.
+Same base template with infrastructure-specific fields:
 
 ```
 ## Task
-**Overall Goal**: [Plan title]
-**Your Assignment**: [Step N: title]
 
+**Overall Goal**: [Plan title — 1-2 sentences]
+**Your Assignment**: [Step title]
 [Full step description]
 
 ## Expected Outcome
-**Files**: [paths]
-**Done when**: [criteria]
 
-## Constraints
-[Plan conventions + must-not-have items]
+**Target**: [SSH connection string from plan, e.g., "ssh -p 13664 user@host"]
+**Commands**: [Commands from plan step]
+**Acceptance Criteria**: [done-when, verbatim]
 
-**Senior Tier**: Explore deeply before acting. Check edge cases, cross-cutting concerns, architectural impact. Trace downstream effects.
+Execute commands via Bash tool (SSH to target). Verify done-when after each command group. Report connection details and command outputs.
 
-[If accumulated wisdom exists:]
-**Wisdom from prior steps**: [wisdom items]
-```
+## Must Do
 
-### Infrastructure Tier (for steps with Type: infra)
+- [PLAN_CONVENTIONS — plan-specific only]
 
-```
-## Task (Infrastructure)
-**Assignment**: [Step N: title]
+## Must NOT Do
 
-[Full step description]
-
-**Target**: [SSH connection string from plan]
-**Commands**: [commands from plan step]
-**Done when**: [acceptance criteria]
-
-Execute commands via Bash tool (SSH to target). Verify done-when after each command group.
+Stay in scope — only the commands and targets described above.
 
 [If accumulated wisdom exists:]
-**Wisdom from prior steps**: [wisdom items]
+## Wisdom from prior steps
+Prefer these over re-discovering:
+[accumulated wisdom items]
 ```
 
 ## Phase 3: Verify
 
-After all waves complete, run the full test suite. Then apply layered verification gated by complexity.
+After all waves complete, run the full test suite. Then apply verification based on complexity.
 
-### Verification Layers by Complexity
+Initialize VERIFY_RETRY_COUNT = 0.
 
-| Complexity | Layer 1 | Layer 2 |
-|-----------|---------|---------|
-| simple | plan-code-review (sonnet) | none |
-| standard (normal) | plan-code-review (sonnet) | none |
-| complex | plan-code-review (opus) | none |
+### Simple (build + test + lint only)
 
-**Layer 1: plan-code-review (ALL plans)**
+Run build + test + lint. All pass → proceed to Phase 4. Any failure → fix and re-run.
 
-Spawn `plan-code-review` agent (foreground). For simple/standard: sonnet model (default). For complex: opus model override. Three-stage check: plan compliance (done-when verification), spec compliance, and code quality. If BLOCKED: fix cited issues, re-run tests, re-submit.
+No verification agent for Simple plans.
 
-**Verification order:** Layer 1 must pass before delivery. Complex plans get opus-level deep review.
+### Standard (plan-code-review)
+
+Run build + test + lint. Then spawn a single consolidated review (foreground):
+
+```
+Agent(subagent_type: "plan-code-review", prompt: "Review implementation against plan. Modified files: [list]. Plan conventions: [PLAN_CONVENTIONS].")
+```
+
+This agent performs compliance verification (done-when, must-not-have, scope), spec compliance, and code quality in one pass. APPROVED → Phase 4. BLOCKED → fix, re-verify.
+
+### Complex (plan-code-review with opus)
+
+Run build + test + lint. Then spawn a single consolidated deep review (foreground):
+
+```
+Agent(subagent_type: "plan-code-review", model: opus, prompt: "Deep review. Modified files: [list]. Conventions: [PLAN_CONVENTIONS]. Full review: compliance, spec, quality, cross-layer integration, architectural impact.")
+```
+
+APPROVED → Phase 4. BLOCKED → fix, re-verify.
 
 ### 3-Strike Rule
 
@@ -240,9 +249,8 @@ After 3 total verification failures across all layers:
 ## Phase 4: Deliver
 
 1. Git commit via `/git-master` (auto-detects commit style). You are in an isolated worktree, branch is checked out. Do NOT push (platform handles this). Do NOT switch branches (breaks worktree isolation)
-2. Do NOT call `update-task` to change status. Pipeline manages transitions automatically
-3. `create-task-section(type: dev_report)` with structured report (format below)
-4. `report-progress(status: complete, percentage: 100)`
+2. `create-task-section(type: dev_report)` with structured report (format below)
+3. `report-progress(status: complete, percentage: 100)`
 
 ### Dev Report Format
 

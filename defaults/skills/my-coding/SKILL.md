@@ -1,6 +1,6 @@
 ---
 name: my-coding
-description: Coding style enforcement for ALL code — PHP, Dart, TypeScript, Go. Triggers on any code generation, implementation, refactoring, or review task. Key rules — no declare(strict_types=1), 120-char max, multi-line everything with trailing commas, full types + docblocks, TDD red-green-refactor, English only, zero linter violations, Laravel-inspired OOP universally. Load language-specific references (php-laravel.md, dart-flutter.md) when working in those languages.
+description: Coding style for all languages — PHP, Dart, TypeScript, Go. No strict_types, 120-char lines, multi-line collections, full types + docblocks, TDD, English only, zero lint violations, Laravel-inspired OOP.
 when-to-use: Any request to write, modify, review, or generate code in any language. Triggers on implementation, refactoring, code review, and TDD tasks.
 ---
 

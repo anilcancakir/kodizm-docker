@@ -1,7 +1,7 @@
 ---
 name: git-master
-description: "Atomic commit architect with convention detection. Analyzes project commit style from instruction files (CLAUDE.md, GEMINI.md, AGENTS.md, copilot-instructions), git history, or falls back to Conventional Commits. Enforces split rules, test pairing, dependency ordering. Use when committing, staging, or preparing git commits."
-when-to-use: "TRIGGER when: commit, stage, git add, ready to commit, save progress, checkpoint work. DO NOT TRIGGER when: push, rebase, squash, blame, bisect, cherry-pick, history search, GitHub API."
+description: Atomic commit architect. Detects project commit style from instruction files, git history, or Conventional Commits fallback. Enforces split rules, test pairing, dependency ordering.
+when-to-use: TRIGGER when commit, stage, git add, ready to commit, save progress, checkpoint work. DO NOT TRIGGER when push, rebase, squash, blame, bisect, cherry-pick, history search.
 ---
 
 # Git Master

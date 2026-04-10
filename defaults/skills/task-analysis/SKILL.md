@@ -1,12 +1,12 @@
 ---
 name: task-analysis
-description: Turns user requests into well-specified Kodizm tasks. Investigate the codebase first, apply the ambiguity gate, then create or refine the task with full spec and analysis section. Use Kodizm tools: get-task, update-task, create-task, create-task-section, ask-user.
+description: Turns user requests into well-specified Kodizm tasks. Investigate the codebase first, apply the ambiguity gate, then create or refine the task with full spec and analysis section.
 when-to-use: Any request to create, refine, or analyse a task: new features, bugs, spikes, meeting note batches, or existing task enrichment.
 ---
 
 # Task Analysis Skill
 
-Turn user requests into well-specified tasks that Developer agents can plan and execute autonomously.
+Turn user requests into well-specified tasks that agents can plan and execute autonomously.
 
 ## Core Principle: Investigate First, Ask Later
 
