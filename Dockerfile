@@ -369,12 +369,12 @@ RUN set -euo pipefail && \
 # ADD fetches the release version file on every build, busting the cache layer
 # when Anthropic publishes a new release (other layers stay cached).
 ENV DISABLE_AUTOUPDATER=1
-ADD https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/latest /tmp/cc-latest-version
+ADD https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/stable /tmp/cc-stable-version
 RUN set -euo pipefail && \
     curl -fsSL https://claude.ai/install.sh | bash -s stable && \
     cp /root/.local/bin/claude /usr/local/bin/claude && \
     chmod 755 /usr/local/bin/claude && \
-    rm -f /tmp/cc-latest-version
+    rm -f /tmp/cc-stable-version
 
 # OpenCode — native Bun-compiled binary from GitHub Releases
 RUN set -euo pipefail && \
