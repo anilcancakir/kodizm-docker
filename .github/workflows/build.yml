@@ -52,3 +52,11 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/anilcancakir/kodizm-ai-docker:buildcache,mode=max
           secrets: |
             github_token=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger deploy webhook
+        if: success()
+        run: |
+          curl -sf -X POST "${{ secrets.DOCKER_DEPLOY_WEBHOOK_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.DOCKER_DEPLOY_WEBHOOK_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"image_tag": "sha-${{ github.sha }}", "git_sha": "${{ github.sha }}"}'
