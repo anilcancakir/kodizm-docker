@@ -366,11 +366,15 @@ RUN set -euo pipefail && \
 
 # Claude Code — native standalone binary (npm deprecated since Feb 2026)
 # Install as root, then copy to /usr/local/bin so agent user can execute it
+# ADD fetches the stable channel version manifest on every build, busting cache
+# when Anthropic publishes a new stable release (other layers stay cached).
 ENV DISABLE_AUTOUPDATER=1
+ADD https://storage.googleapis.com/anthropic-sdk/claude-code-releases/stable /tmp/cc-stable-version
 RUN set -euo pipefail && \
     curl -fsSL https://claude.ai/install.sh | bash -s stable && \
     cp /root/.local/bin/claude /usr/local/bin/claude && \
-    chmod 755 /usr/local/bin/claude
+    chmod 755 /usr/local/bin/claude && \
+    rm -f /tmp/cc-stable-version
 
 # OpenCode — native Bun-compiled binary from GitHub Releases
 RUN set -euo pipefail && \
