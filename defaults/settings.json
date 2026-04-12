@@ -139,8 +139,5 @@
                 ]
             }
         ]
-    },
-    "worktree": {
-        "symlinkDirectories": ["vendor", "node_modules", "target"]
     }
 }
