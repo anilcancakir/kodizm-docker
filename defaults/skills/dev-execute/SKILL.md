@@ -22,7 +22,7 @@ Take an approved plan and turn it into working code through orchestrated plan-wo
 
 ### Simple Plans (1-2 steps)
 
-Implement directly. No worker subagents needed. Read existing code, follow plan, write implementation + tests, run tests. Skip to Phase 3.
+Implement directly. No worker subagents needed. Read existing code, follow plan, write implementation + tests, run tests. Skip to Phase 3. Then Phase 4 (Deliver) — do NOT skip delivery for simple plans.
 
 ### Standard and Complex Plans
 
@@ -251,6 +251,17 @@ After 3 total verification failures across all layers:
 1. Git commit via `/git-master` (auto-detects commit style). You are in an isolated worktree, branch is checked out. Do NOT push (platform handles this). Do NOT switch branches (breaks worktree isolation)
 2. `create-task-section(type: dev_report)` with structured report (format below)
 3. `report-progress(status: complete, percentage: 100)`
+
+If commit fails (permission denied, hook error, empty diff): retry once with `git add -A && git commit`. If still fails: `create-task-section(type: notes, title: 'Commit Failed')` with the error, `report-progress(status: blocked)`. Do NOT end session silently.
+
+### Completion Checklist
+
+Before ending session, verify ALL three:
+- [ ] Changes committed via `git-master`?
+- [ ] `create-task-section(type: dev_report)` created?
+- [ ] `report-progress(status: complete, percentage: 100)` called?
+
+Do NOT end_turn until all three are done.
 
 ### Dev Report Format
 
