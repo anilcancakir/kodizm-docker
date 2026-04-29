@@ -187,4 +187,4 @@ After all commits: `git status` + `git log --oneline -10`. Report results.
 - No amending — `git commit --amend` is forbidden, each commit is final
 - No history rewriting — no `git rebase`, `git reset`, `git cherry-pick`
 - No pushing — the platform pushes automatically
-- No branch switching — stay on the assigned worktree branch
+- No branch switching — stay on the assigned task branch
