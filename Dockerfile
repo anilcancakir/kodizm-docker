@@ -389,6 +389,35 @@ RUN set -euo pipefail && \
     chmod +x /usr/local/bin/opencode
 
 # ---------------------------------------------------------------------------
+# Stage 12c: ACP Adapters — Agent Client Protocol bridges
+# ---------------------------------------------------------------------------
+#
+# The Kodizm control plane talks to in-container CLIs via ACP (Agent
+# Client Protocol v1) over JSON-RPC NDJSON STDIO. Three adapters live
+# alongside the native CLIs:
+#   - claude-agent-acp  : npm @agentclientprotocol/claude-agent-acp
+#   - codex-acp         : npm @zed-industries/codex-acp
+#   - opencode acp      : built into the opencode binary (no separate install)
+#
+# Installed globally so the Laravel control plane can spawn them from
+# `docker exec -i <container> claude-agent-acp` (resp. codex-acp) without
+# npx network round-trips. PATH is already populated by Stage 3 (nvm
+# default Node 22).
+
+RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
+    npm install -g \
+      @agentclientprotocol/claude-agent-acp \
+      @zed-industries/codex-acp
+
+# Symlink the adapters into /usr/local/bin so they survive a future
+# nvm version flip and stay discoverable for `docker exec` callers
+# that may pass a sanitized PATH.
+RUN set -euo pipefail && \
+    NODE_BIN="${NVM_DIR}/versions/node/v$(cat ${NVM_DIR}/alias/default)/bin" && \
+    ln -sf "${NODE_BIN}/claude-agent-acp" /usr/local/bin/claude-agent-acp && \
+    ln -sf "${NODE_BIN}/codex-acp" /usr/local/bin/codex-acp
+
+# ---------------------------------------------------------------------------
 # Stage 12b: Developer Tooling (LSP servers, linters, formatters, build tools)
 # ---------------------------------------------------------------------------
 

@@ -257,6 +257,22 @@ commandTests:
     args: ["--version"]
     expectedOutput: ["\\d+\\."]
 
+  # ACP adapters — JSON-RPC v1 bridges the Kodizm control plane spawns
+  # via `docker exec -i`. claude-agent-acp + codex-acp ship as npm
+  # binaries; opencode acp is built into the opencode binary above.
+  - name: "Claude Code ACP adapter available"
+    command: "claude-agent-acp"
+    args: ["--help"]
+    exitCode: 0
+  - name: "Codex ACP adapter available"
+    command: "codex-acp"
+    args: ["--help"]
+    exitCode: 0
+  - name: "opencode ACP subcommand available"
+    command: "opencode"
+    args: ["acp", "--help"]
+    exitCode: 0
+
   # Security: agent user exists
   - name: "agent user exists with UID 1001"
     command: "id"
@@ -289,6 +305,12 @@ fileExistenceTests:
     shouldExist: true
   - name: "OpenCode binary exists"
     path: "/usr/local/bin/opencode"
+    shouldExist: true
+  - name: "Claude Code ACP adapter symlink exists"
+    path: "/usr/local/bin/claude-agent-acp"
+    shouldExist: true
+  - name: "Codex ACP adapter symlink exists"
+    path: "/usr/local/bin/codex-acp"
     shouldExist: true
 
 # ---------------------------------------------------------------------------
