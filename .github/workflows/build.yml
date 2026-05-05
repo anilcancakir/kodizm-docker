@@ -6,6 +6,15 @@ on:
   schedule:
     - cron: '0 4 * * 1'
 
+# Coalesce in-flight runs on rapid consecutive pushes to main so the
+# 21-minute build queue never piles up. The latest commit cancels any
+# older run on the same branch; the scheduled weekly run gets its own
+# group key so a Monday cron does not cancel a Friday push and vice
+# versa.
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   packages: write
