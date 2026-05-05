@@ -389,33 +389,40 @@ RUN set -euo pipefail && \
     chmod +x /usr/local/bin/opencode
 
 # ---------------------------------------------------------------------------
-# Stage 12c: ACP Adapters — Agent Client Protocol bridges
+# Stage 12c: ACP Adapters + codex CLI
 # ---------------------------------------------------------------------------
 #
 # The Kodizm control plane talks to in-container CLIs via ACP (Agent
-# Client Protocol v1) over JSON-RPC NDJSON STDIO. Three adapters live
-# alongside the native CLIs:
-#   - claude-agent-acp  : npm @agentclientprotocol/claude-agent-acp
-#   - codex-acp         : npm @zed-industries/codex-acp
+# Client Protocol v1) over JSON-RPC NDJSON STDIO. Three CLIs + their
+# adapters live alongside Claude Code:
+#   - claude-agent-acp  : npm @agentclientprotocol/claude-agent-acp (pinned)
+#   - codex             : npm @openai/codex (pinned)               <-- the CLI itself
+#   - codex-acp         : npm @zed-industries/codex-acp (pinned)
 #   - opencode acp      : built into the opencode binary (no separate install)
 #
 # Installed globally so the Laravel control plane can spawn them from
-# `docker exec -i <container> claude-agent-acp` (resp. codex-acp) without
-# npx network round-trips. PATH is already populated by Stage 3 (nvm
-# default Node 22).
+# `docker exec -i <container> codex-acp` (resp. claude-agent-acp) without
+# npx network round-trips. Versions pinned for build reproducibility;
+# update via the ARGs above the install command.
+
+ARG CLAUDE_AGENT_ACP_VERSION=0.32.0
+ARG CODEX_ACP_VERSION=0.13.0
+ARG CODEX_VERSION=0.128.0
 
 RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
     npm install -g \
-      @agentclientprotocol/claude-agent-acp \
-      @zed-industries/codex-acp
+      "@agentclientprotocol/claude-agent-acp@${CLAUDE_AGENT_ACP_VERSION}" \
+      "@zed-industries/codex-acp@${CODEX_ACP_VERSION}" \
+      "@openai/codex@${CODEX_VERSION}"
 
-# Symlink the adapters into /usr/local/bin so they survive a future
-# nvm version flip and stay discoverable for `docker exec` callers
-# that may pass a sanitized PATH.
+# Symlink the adapters + the codex CLI into /usr/local/bin so they
+# survive a future nvm version flip and stay discoverable for
+# `docker exec` callers that may pass a sanitized PATH.
 RUN set -euo pipefail && \
     NODE_BIN="${NVM_DIR}/versions/node/v$(cat ${NVM_DIR}/alias/default)/bin" && \
     ln -sf "${NODE_BIN}/claude-agent-acp" /usr/local/bin/claude-agent-acp && \
-    ln -sf "${NODE_BIN}/codex-acp" /usr/local/bin/codex-acp
+    ln -sf "${NODE_BIN}/codex-acp" /usr/local/bin/codex-acp && \
+    ln -sf "${NODE_BIN}/codex" /usr/local/bin/codex
 
 # ---------------------------------------------------------------------------
 # Stage 12b: Developer Tooling (LSP servers, linters, formatters, build tools)

@@ -256,6 +256,10 @@ commandTests:
     command: "opencode"
     args: ["--version"]
     expectedOutput: ["\\d+\\."]
+  - name: "codex CLI available"
+    command: "codex"
+    args: ["--version"]
+    expectedOutput: ["\\d+\\."]
 
   # ACP adapters — JSON-RPC v1 bridges the Kodizm control plane spawns
   # via `docker exec -i`. claude-agent-acp + codex-acp ship as npm
@@ -311,6 +315,9 @@ fileExistenceTests:
     shouldExist: true
   - name: "Codex ACP adapter symlink exists"
     path: "/usr/local/bin/codex-acp"
+    shouldExist: true
+  - name: "codex CLI symlink exists"
+    path: "/usr/local/bin/codex"
     shouldExist: true
 
 # ---------------------------------------------------------------------------
