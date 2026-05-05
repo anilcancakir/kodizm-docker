@@ -579,6 +579,8 @@ COPY --chown=agent:agent defaults/settings.json /opt/kodizm/defaults/settings.js
 COPY --chown=agent:agent defaults/skills/ /opt/kodizm/defaults/skills/
 COPY --chown=agent:agent defaults/agents/ /opt/kodizm/defaults/agents/
 COPY --chown=agent:agent defaults/hooks/ /opt/kodizm/defaults/hooks/
+COPY --chown=agent:agent defaults/opencode/ /opt/kodizm/defaults/opencode/
+COPY --chown=agent:agent defaults/codex/ /opt/kodizm/defaults/codex/
 ENV CLAUDE_CODE_PLUGIN_SEED_DIR=/opt/kodizm/defaults/plugins
 
 COPY defaults/settings.json /home/agent/.claude/settings.json
