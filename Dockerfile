@@ -542,8 +542,11 @@ RUN set -euo pipefail && \
              /home/agent/.local/share/pipx \
              /home/agent/.cache \
              /home/agent/.npm \
-             /home/agent/.composer && \
-    # Chown all tool directories to agent
+             /home/agent/.composer \
+             /var/log/kodizm-debug && \
+    # Chown all tool directories to agent (Phase 5: include /var/log/kodizm-debug
+    # so the named-volume first-mount inherits agent ownership; without this the
+    # debug recorder fails with EACCES when writing the per-session JSONL).
     chown -R agent:agent \
         /opt/pyenv \
         /opt/nvm \
@@ -552,6 +555,7 @@ RUN set -euo pipefail && \
         /opt/cargo \
         /opt/mise \
         /opt/flutter \
+        /var/log/kodizm-debug \
         /home/agent && \
     # Copy profile to agent's bashrc for non-login shells too
     cp /etc/profile /home/agent/.profile_kodizm && \
