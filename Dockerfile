@@ -389,39 +389,38 @@ RUN set -euo pipefail && \
     chmod +x /usr/local/bin/opencode
 
 # ---------------------------------------------------------------------------
-# Stage 12c: ACP Adapters + codex CLI
+# Stage 12c: kodizm-acp + codex CLI
 # ---------------------------------------------------------------------------
 #
-# The Kodizm control plane talks to in-container CLIs via ACP (Agent
-# Client Protocol v1) over JSON-RPC NDJSON STDIO. Three CLIs + their
-# adapters live alongside Claude Code:
-#   - claude-agent-acp  : npm @agentclientprotocol/claude-agent-acp (pinned)
-#   - codex             : npm @openai/codex (pinned)               <-- the CLI itself
-#   - codex-acp         : npm @zed-industries/codex-acp (pinned)
-#   - opencode acp      : built into the opencode binary (no separate install)
+# Phase 4 cutover: the legacy three-adapter layer (claude-agent-acp
+# + codex-acp + opencode acp shim) collapsed into a single bridge,
+# `@kodizm/acp`. The Kodizm control plane spawns this one bin per
+# session with `KODIZM_BACKEND=claude|codex|opencode` env; the bridge
+# dispatches internally to each backend's native interface (Claude
+# SDK, codex app-server stdio, opencode HTTP server).
 #
-# Installed globally so the Laravel control plane can spawn them from
-# `docker exec -i <container> codex-acp` (resp. claude-agent-acp) without
-# npx network round-trips. Versions pinned for build reproducibility;
-# update via the ARGs above the install command.
+# Installed globally so the control plane can spawn it via
+# `docker exec -i <container> kodizm-acp` without npx round-trips.
+# Versions pinned for build reproducibility; bump via the ARGs.
+#
+# `codex` (the CLI itself) + `opencode` stay installed because
+# kodizm-acp's codex driver spawns `codex app-server` and the
+# opencode driver spawns `opencode serve` per session.
 
-ARG CLAUDE_AGENT_ACP_VERSION=0.32.0
-ARG CODEX_ACP_VERSION=0.13.0
+ARG KODIZM_ACP_VERSION=0.4.0
 ARG CODEX_VERSION=0.128.0
 
 RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
     npm install -g \
-      "@agentclientprotocol/claude-agent-acp@${CLAUDE_AGENT_ACP_VERSION}" \
-      "@zed-industries/codex-acp@${CODEX_ACP_VERSION}" \
+      "@kodizm/acp@${KODIZM_ACP_VERSION}" \
       "@openai/codex@${CODEX_VERSION}"
 
-# Symlink the adapters + the codex CLI into /usr/local/bin so they
+# Symlink kodizm-acp + the codex CLI into /usr/local/bin so they
 # survive a future nvm version flip and stay discoverable for
 # `docker exec` callers that may pass a sanitized PATH.
 RUN set -euo pipefail && \
     NODE_BIN="${NVM_DIR}/versions/node/v$(cat ${NVM_DIR}/alias/default)/bin" && \
-    ln -sf "${NODE_BIN}/claude-agent-acp" /usr/local/bin/claude-agent-acp && \
-    ln -sf "${NODE_BIN}/codex-acp" /usr/local/bin/codex-acp && \
+    ln -sf "${NODE_BIN}/kodizm-acp" /usr/local/bin/kodizm-acp && \
     ln -sf "${NODE_BIN}/codex" /usr/local/bin/codex
 
 # ---------------------------------------------------------------------------
