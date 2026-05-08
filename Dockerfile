@@ -407,7 +407,7 @@ RUN set -euo pipefail && \
 # kodizm-acp's codex driver spawns `codex app-server` and the
 # opencode driver spawns `opencode serve` per session.
 
-ARG KODIZM_ACP_VERSION=0.5.2
+ARG KODIZM_ACP_VERSION=0.5.3
 ARG CODEX_VERSION=0.128.0
 
 RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
