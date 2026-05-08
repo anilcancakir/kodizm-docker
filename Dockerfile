@@ -389,41 +389,6 @@ RUN set -euo pipefail && \
     chmod +x /usr/local/bin/opencode
 
 # ---------------------------------------------------------------------------
-# Stage 12c: kodizm-acp + codex CLI
-# ---------------------------------------------------------------------------
-#
-# Phase 4 cutover: the legacy three-adapter layer (claude-agent-acp
-# + codex-acp + opencode acp shim) collapsed into a single bridge,
-# `@kodizm/acp`. The Kodizm control plane spawns this one bin per
-# session with `KODIZM_BACKEND=claude|codex|opencode` env; the bridge
-# dispatches internally to each backend's native interface (Claude
-# SDK, codex app-server stdio, opencode HTTP server).
-#
-# Installed globally so the control plane can spawn it via
-# `docker exec -i <container> kodizm-acp` without npx round-trips.
-# Versions pinned for build reproducibility; bump via the ARGs.
-#
-# `codex` (the CLI itself) + `opencode` stay installed because
-# kodizm-acp's codex driver spawns `codex app-server` and the
-# opencode driver spawns `opencode serve` per session.
-
-ARG KODIZM_ACP_VERSION=0.5.3
-ARG CODEX_VERSION=0.128.0
-
-RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
-    npm install -g \
-      "@kodizm/acp@${KODIZM_ACP_VERSION}" \
-      "@openai/codex@${CODEX_VERSION}"
-
-# Symlink kodizm-acp + the codex CLI into /usr/local/bin so they
-# survive a future nvm version flip and stay discoverable for
-# `docker exec` callers that may pass a sanitized PATH.
-RUN set -euo pipefail && \
-    NODE_BIN="${NVM_DIR}/versions/node/v$(cat ${NVM_DIR}/alias/default)/bin" && \
-    ln -sf "${NODE_BIN}/kodizm-acp" /usr/local/bin/kodizm-acp && \
-    ln -sf "${NODE_BIN}/codex" /usr/local/bin/codex
-
-# ---------------------------------------------------------------------------
 # Stage 12b: Developer Tooling (LSP servers, linters, formatters, build tools)
 # ---------------------------------------------------------------------------
 
@@ -606,6 +571,59 @@ COPY proxy/ /opt/kodizm/proxy/
 RUN chmod +x /opt/kodizm/entrypoint.sh /opt/kodizm/setup.sh && \
     mkdir -p /workspace /task-workspaces && \
     chown agent:agent /workspace /task-workspaces /opt/kodizm
+
+# ---------------------------------------------------------------------------
+# Stage 16: codex CLI (deliberately late + isolated)
+# ---------------------------------------------------------------------------
+#
+# codex bumps invalidate only the next layer (its symlink) plus any
+# layer below; everything above stays cached. Split off from the
+# kodizm-acp install so a codex bump does not invalidate kodizm-acp's
+# install layer (and vice versa). Keep this BEFORE the kodizm-acp
+# stage because codex changes less frequently than kodizm-acp.
+
+ARG CODEX_VERSION=0.128.0
+
+RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
+    npm install -g "@openai/codex@${CODEX_VERSION}"
+
+RUN set -euo pipefail && \
+    NODE_BIN="${NVM_DIR}/versions/node/v$(cat ${NVM_DIR}/alias/default)/bin" && \
+    ln -sf "${NODE_BIN}/codex" /usr/local/bin/codex
+
+# ---------------------------------------------------------------------------
+# Stage 17: kodizm-acp (deliberately last, most volatile)
+# ---------------------------------------------------------------------------
+#
+# Phase 4 cutover: the legacy three-adapter layer (claude-agent-acp
+# + codex-acp + opencode acp shim) collapsed into a single bridge,
+# `@kodizm/acp`. The Kodizm control plane spawns this one bin per
+# session with `KODIZM_BACKEND=claude|codex|opencode` env; the bridge
+# dispatches internally to each backend's native interface (Claude
+# SDK, codex app-server stdio, opencode HTTP server).
+#
+# Installed globally so the control plane can spawn it via
+# `docker exec -i <container> kodizm-acp` without npx round-trips.
+# Pinned to KODIZM_ACP_VERSION; bump via that ARG.
+#
+# Cache strategy: this stage sits LAST because kodizm-acp ships often
+# (sometimes multiple times per day during active development). Every
+# layer above is cached; a version bump rebuilds only this stage's
+# install + symlink layers, taking <1 minute end-to-end (npm fetch +
+# image push) instead of the full 20+ minute language-tooling rebuild.
+
+ARG KODIZM_ACP_VERSION=0.5.3
+
+RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
+    npm install -g "@kodizm/acp@${KODIZM_ACP_VERSION}"
+
+RUN set -euo pipefail && \
+    NODE_BIN="${NVM_DIR}/versions/node/v$(cat ${NVM_DIR}/alias/default)/bin" && \
+    ln -sf "${NODE_BIN}/kodizm-acp" /usr/local/bin/kodizm-acp
+
+# ---------------------------------------------------------------------------
+# Stage 18: Final image metadata
+# ---------------------------------------------------------------------------
 
 WORKDIR /workspace
 
