@@ -612,7 +612,7 @@ RUN set -euo pipefail && \
 # install + symlink layers, taking <1 minute end-to-end (npm fetch +
 # image push) instead of the full 20+ minute language-tooling rebuild.
 
-ARG KODIZM_ACP_VERSION=0.5.4
+ARG KODIZM_ACP_VERSION=0.5.5
 
 RUN source ${NVM_DIR}/nvm.sh && nvm use default && \
     npm install -g "@kodizm/acp@${KODIZM_ACP_VERSION}"
