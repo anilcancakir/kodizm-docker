@@ -281,7 +281,7 @@ RUN set -euo pipefail && \
     EXTENSIONS="bcmath bz2 curl dev exif gd gmp igbinary imagick imap intl \
       ldap mbstring memcached msgpack mysql opcache pcov pgsql readline \
       redis soap sqlite3 tidy xml xsl yaml zip xdebug apcu" && \
-    for ver in 7.4 8.0 8.1 8.2 8.3 8.4; do \
+    for ver in 7.4 8.0 8.1 8.2 8.3 8.4 8.5; do \
       echo "Installing PHP ${ver} + extensions..." && \
       pkg_list="php${ver}-cli" && \
       for ext in ${EXTENSIONS}; do \
@@ -289,7 +289,7 @@ RUN set -euo pipefail && \
       done && \
       apt-get install -y --no-install-recommends ${pkg_list} || true; \
     done && \
-    for ver in 8.2 8.3 8.4; do \
+    for ver in 8.2 8.3 8.4 8.5; do \
       apt-get install -y --no-install-recommends php${ver}-swoole 2>/dev/null || true; \
     done && \
     update-alternatives --set php /usr/bin/php${PHP_DEFAULT} && \
