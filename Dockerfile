@@ -275,9 +275,15 @@ RUN set -euo pipefail && \
     rm -rf /tmp/*
 
 # ---------------------------------------------------------------------------
-# Stage 9: PHP via ondrej/php PPA (6 versions: php7.4 through php8.4)
+# Stage 9: PHP via ondrej/php PPA (7 versions: php7.4 through php8.5)
+#
+# `apt-get update` refreshes the list cache that ondrej PPA rolls
+# forward roughly weekly; without it apt-get tries to fetch the
+# version recorded in stage 1's cached list and hits 404 on the
+# Launchpad CDN as soon as the PPA bumps a patch revision.
 # ---------------------------------------------------------------------------
 RUN set -euo pipefail && \
+    apt-get update && \
     EXTENSIONS="bcmath bz2 curl dev exif gd gmp igbinary imagick imap intl \
       ldap mbstring memcached msgpack mysql opcache pcov pgsql readline \
       redis soap sqlite3 tidy xml xsl yaml zip xdebug apcu" && \
